@@ -109,7 +109,7 @@ class ViewController: UIViewController {
                     
                     // run the completion block
                     // always in the main queue, just in case!
-                    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), { () -> Void in
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
                         handler(image: img)
                     })            }
         }
