@@ -71,47 +71,59 @@ class ViewController: UIViewController {
     // in the background, without blocking the UI.
     @IBAction func simpleAsynchronousDownload(sender: UIBarButtonItem) {
 		
-        // hide current image
-        photoView.image = nil
-        
-        // start animation
-        activityView.startAnimating()
-        
-        
-        // Get the URL for the image
-        let url = NSURL(string: BigImages.shark.rawValue)
-        
-        // create a queue
-        let downloadQueue = dispatch_queue_create("download", nil)
-        
-        // add a closure that encapsulates the blocking operation
-        // run it asynchronously: some time in the near future
-        dispatch_async(downloadQueue) { () -> Void in
-            // Obtain the NSData with the image
-            let imgData = NSData(contentsOfURL: url!)
-            
-            // Turn it into a UIImage
-            let image = UIImage(data: imgData!)
-            
-            // Run the code that updates the UI in the main queue!  
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                // Display it
-                self.photoView.image = image
-                
-                // Stop animating
-                self.activityView.stopAnimating()
-            })
-        }
-
+		// hide current image
+		photoView.image = nil
+		
+		// start animation
+		activityView.startAnimating()
+		
+		
+		// Get the URL for the image
+		let url = NSURL(string: BigImages.shark.rawValue)
+		
+		// create a queue
+		// INSTEAD OF THIS GCD:
+		//let downloadQueue = dispatch_queue_create("download", nil)
+		
+		// USE THIS NSOperationQueue:
+		let downloadQueue = NSOperationQueue()
+		downloadQueue.name = "download"
+		
+		// add a closure that encapsulates the blocking operation
+		// run it asynchronously: some time in the near future
+		// INSTEAD OF THIS GCD:
+		//dispatch_async(downloadQueue) { () -> Void in
+		
+		// USE THIS NSOperationQueue method:
+		downloadQueue.addOperationWithBlock { () -> Void in
+			// Obtain the NSData with the image
+			let imgData = NSData(contentsOfURL: url!)
+			
+			// Turn it into a UIImage
+			let image = UIImage(data: imgData!)
+			
+			// Run the code that updates the UI in the main queue!
+			// INSTEAD OF THIS GCD:
+			//dispatch_async(dispatch_get_main_queue(), { () -> Void in
+			
+			// USE THIS NSOperationQueue:
+			NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+				// Display it
+				self.photoView.image = image
+				
+				// Stop animating
+				self.activityView.stopAnimating()
+			}	// ) - THIS PAREN IS NO LONGER NEEDED WITH THE NSOperation CALL
+		}
     }
-    
+	
     // This code downloads the huge image in a global queue and uses a completion
     // closure.
     @IBAction func asynchronousDownload(sender: UIBarButtonItem) {
-        
+		
         // hide current image
         photoView.image = nil
-        
+		
         // start animation
         activityView.startAnimating()
         
