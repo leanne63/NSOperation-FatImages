@@ -36,45 +36,41 @@ class ViewController: UIViewController {
     
     // This method downloads a huge image, blocking the main queue and
     // the UI.
-    // This si for instructional purposes only, never do this.
+    // This is for instructional purposes only, never do this.
     @IBAction func synchronousDownload(sender: UIBarButtonItem) {
-        
-        // hide current image
-        photoView.image = nil
-        
-        // start animation
-        activityView.startAnimating()
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), dispatch_get_main_queue()) { () -> Void in
-            // Get the URL for the image
-            // Obtain the NSData with the image
-            // Turn it into a UIImage
-            if let url = NSURL(string: BigImages.seaLion.rawValue),
-                let imgData = NSData(contentsOfURL: url),
-                let image = UIImage(data: imgData){
-                    
-                    // Display it
-                    self.photoView.image = image
-                    
-                    // Stop animating
-                    self.activityView.stopAnimating()
-            }
-
-        }
-        
-        
-        
-        
-
-        
-        
+		
+		// hide current image
+		photoView.image = nil
+		
+		// start animation
+		activityView.startAnimating()
+		
+		// INSTEAD OF THIS GCD:
+		//dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), dispatch_get_main_queue()) { () -> Void in
+		
+		// USE THIS NSOperationQueue:
+		NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+			// Get the URL for the image
+			// Obtain the NSData with the image
+			// Turn it into a UIImage
+			if let url = NSURL(string: BigImages.seaLion.rawValue),
+				let imgData = NSData(contentsOfURL: url),
+				let image = UIImage(data: imgData){
+				
+				// Display it
+				self.photoView.image = image
+				
+				// Stop animating
+				self.activityView.stopAnimating()
+			}
+		}
     }
-    
-    
+	
+	
     // This method avoids blocking by creating a new queue that runs
     // in the background, without blocking the UI.
     @IBAction func simpleAsynchronousDownload(sender: UIBarButtonItem) {
-        
+		
         // hide current image
         photoView.image = nil
         
