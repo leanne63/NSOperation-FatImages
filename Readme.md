@@ -1,4 +1,9 @@
 #GCD Example: Fat Images
+##Refactored to use NSOperationQueue and NSOperation objects instead of using GCD directly
+*(Note: This is Apple's recommended method: GCD should be used only if absolutely necessary for capabilities not available in NSOperation/Queue)*
+- - -
+#Original:
+#GCD Example: Fat Images
 
 
 ## Step 1
@@ -8,7 +13,7 @@ Basic scaffolding with stub implementation of the three main methods:
 ```
     // This method downloads a huge image, blocking the main queue and
     // the UI.
-    // This si for instructional purposes only, never do this.
+    // This is for instructional purposes only, never do this.
     @IBAction func synchronousDownload(sender: UIBarButtonItem) {
     }
     
@@ -32,7 +37,7 @@ Synchronous code, line by line, filled with !.
 
 ##Step 2.1
 
-Same as aboved, but in a neat and safe if let construct.
+Same as above, but in a neat and safe if let construct.
 
 ##Step 3
 
@@ -44,7 +49,7 @@ Asynchronous code running the completion closure in the background. Eventually t
 
 ##Step 4.1
 
-Asyncronous code that runs the completion block in the main queue. Now we're good.
+Asynchronous code that runs the completion block in the main queue. Now we're good.
 
 ##Step 5
 
