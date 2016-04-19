@@ -141,30 +141,36 @@ class ViewController: UIViewController {
     // This closure is called a completion handler
     // Go download the image, and once you're done, do _this_ (the completion handler)
     func withBigImage(completionHandler handler: (image: UIImage) -> Void){
-        
-
-        
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { () -> Void in
-            
-            // get the url
-            // get the NSData
-            // turn it into a UIImage
-            if let url = NSURL(string: BigImages.whale.rawValue),
-                let imgData = NSData(contentsOfURL: url),
-                let img = UIImage(data: imgData){
-                    
-                    // run the completion block
-                    // always in the main queue, just in case!
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        handler(image: img)
-                        
-                        
-                    })
-            }
-        }
+		
+		// INSTEAD OF THIS GCD:
+		//dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { () -> Void in
+		
+		// USE UP THIS NSOperationQueue:
+		let downloadQueue = NSOperationQueue()
+		downloadQueue.qualityOfService = .UserInitiated
+		
+		downloadQueue.addOperationWithBlock { () -> Void in
+			// get the url
+			// get the NSData
+			// turn it into a UIImage
+			if let url = NSURL(string: BigImages.whale.rawValue),
+				let imgData = NSData(contentsOfURL: url),
+				let img = UIImage(data: imgData){
+				
+				// run the completion block
+				// always in the main queue, just in case!
+				// INSTEAD OF THIS GCD:
+				//dispatch_async(dispatch_get_main_queue(), { () -> Void in
+				
+				// USE THIS NSOperationQueue:
+				NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+					handler(image: img)
+				}	// ) - THIS PAREN IS NO LONGER NEEDED WITH THE NSOperation CALL
+			}
+		}
     }
-    
-    
+	
+	
     // Changes the alfa value (transparency of the image). It's only purpose is to show if the
     // UI is blocked or not.
     @IBAction func setTransparencyOfImage(sender: UISlider) {
